@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sanity Checker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Data Sanity Checker</h1>
+        <p>Upload your tabular data (CSV, Excel) for a quick quality and bias check.</p>
+
+        <div class="upload-area">
+            <input type="file" id="dataFileInput" accept=".csv, .xls, .xlsx">
+            <label for="dataFileInput" class="upload-button">Choose File</label>
+            <span id="fileName">No file chosen</span>
+        </div>
+
+        <div class="input-group">
+            <label for="sensitiveAttrsInput">Sensitive Attributes (comma-separated column names, e.g., gender, race, age):</label>
+            <input type="text" id="sensitiveAttrsInput" placeholder="e.g., Gender, Race, AgeGroup">
+        </div>
+
+        <div class="input-group">
+            <label for="outcomeColInput">Outcome/Target Column (optional, e.g., loan_approved, hired):</label>
+            <input type="text" id="outcomeColInput" placeholder="e.g., LoanStatus, Hired">
+        </div>
+        <button id="analyzeButton" class="analyze-button">Analyze Data</button>
+
+      <div class="results-area" id="resultsArea">
+            <p>Your data analysis results will appear here after upload and processing.</p>
+        </div>
+
+        <button id="downloadReportButton" class="download-button" style="display: none;">Download Report</button>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

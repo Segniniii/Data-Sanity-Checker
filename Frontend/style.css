@@ -1,0 +1,153 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to the top initially */
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.upload-area {
+    margin-bottom: 25px;
+    border: 2px dashed #a0d9b4; /* Light green border */
+    padding: 30px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.upload-area input[type="file"] {
+    display: none; /* Hide the default file input */
+}
+
+.upload-button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+    background-color: #45a049; /* Darker green */
+}
+
+#fileName {
+    color: #777;
+    font-style: italic;
+}
+
+.analyze-button {
+    background-color: #007bff; /* Blue */
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.analyze-button:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+.results-area {
+    margin-top: 40px;
+    padding: 25px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: left;
+    min-height: 100px;
+    color: #666;
+}
+
+
+/* Chart Styling */
+.chart-container {
+    width: 80%; /* Adjust as needed */
+    max-width: 600px; /* Max width for readability */
+    height: 300px; /* Fixed height for consistency */
+    margin: 20px auto; /* Center the chart */
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+/* Optional: Styling for bias flags to make them stand out */
+.warning-flag {
+    color: orange;
+    font-weight: bold;
+}
+.critical-flag {
+    color: red;
+    font-weight: bold;
+}
+
+.input-group {
+    margin: 20px auto; /* Adds vertical space and centers */
+    text-align: left;
+    max-width: 600px; /* Adjust as needed */
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group input[type="text"] {
+    width: calc(100% - 20px); /* Account for padding */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.input-group input[type="text"]::placeholder {
+    color: #aaa;
+}
+
+.upload-area.drag-over {
+    border-color: #007bff; /* Blue border when dragging over */
+    background-color: #e6f7ff; /* Light blue background */
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3); /* Soft blue shadow */
+}
