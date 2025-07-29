@@ -1,0 +1,21 @@
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim-buster
+# This line was changed from Python 3.9/3.10 to 3.11 for compatibility with dependencies like numpy.
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file into the container at /app
+COPY requirements.txt .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your application code to /app
+COPY . /app
+
+# Expose the port that the FastAPI app runs on
+EXPOSE 8000
+
+# Command to run the application using uvicorn
+CMD ["uvicorn", "Backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
