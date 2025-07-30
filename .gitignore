@@ -1,6 +1,48 @@
+# Python specific
 venv/
-.DS_Store
-__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 *.pyc
-*.env
-.env
+*.pyo
+*.pyd
+__pycache__/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDEs and other local files
+.vscode/                 # VS Code specific settings (if not shared)
+.idea/                   # IntelliJ / PyCharm
+*.sublime-project
+*.sublime-workspace
+*.dm.json                # VS Code Workspace Trust
+
+# OS generated files
+.DS_Store                # macOS
+.Trash-* # macOS
+Thumbs.db                # Windows
+ehthumbs.db              # Windows
+Desktop.ini              # Windows
+$RECYCLE.BIN/            # Windows
+
+# Environment variables and sensitive files
+.env                     # Dotenv file for local environment variables
+.flaskenv                # Flask specific env file
+secrets.json             # Example: if you had a secrets file
+*.key                    # Private keys
+*.pem                    # Certificate files
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Docker specific files
+# No need to ignore Dockerfile or .dockerignore itself
+# But might ignore build context files if they become large
+# .dockerignore  <-- DO NOT IGNORE .dockerignore
+# Dockerfile   <-- DO NOT IGNORE Dockerfile
+# *.log # Generally keep logs in production, but locally they can be ignored

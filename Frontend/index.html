@@ -26,14 +26,25 @@
             <label for="outcomeColInput">Outcome/Target Column (optional, e.g., loan_approved, hired):</label>
             <input type="text" id="outcomeColInput" placeholder="e.g., LoanStatus, Hired">
         </div>
+
+        <div class="input-group">
+            <label for="favorableOutcomeInput">Favorable Outcome Value (e.g., Yes, 1, Approved):</label>
+            <input type="text" id="favorableOutcomeInput" placeholder="e.g., 1, True, Approved">
+        </div>
+
+        <div class="input-group">
+            <label for="privilegedGroupInput">Privileged Group Value (from sensitive attribute, e.g., Male, White):</label>
+            <input type="text" id="privilegedGroupInput" placeholder="e.g., Male, White">
+        </div>
+
         <button id="analyzeButton" class="analyze-button">Analyze Data</button>
 
-      <div class="results-area" id="resultsArea">
+        <div class="results-area" id="resultsArea">
             <p>Your data analysis results will appear here after upload and processing.</p>
         </div>
 
         <button id="downloadReportButton" class="download-button" style="display: none;">Download Report</button>
-        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/script.js"></script>

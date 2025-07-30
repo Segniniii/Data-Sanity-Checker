@@ -1,40 +1,40 @@
-// Helper function to create a Chart.js bar chart.
-// This function is designed to be globally accessible as it's used for rendering
-// charts dynamically within the main application's display area.
+// Helper function to create a Chart.js bar chart dynamically.
+// This function is globally accessible and used to render various data distributions.
 function createBarChart(canvasId, labels, data, title, backgroundColor) {
-    // Get the 2D rendering context of the canvas element.
+    // Get the 2D rendering context of the canvas HTML element.
     const ctx = document.getElementById(canvasId).getContext('2d');
     
-    // If a chart instance already exists on this canvas, destroy it to prevent duplicates
-    // and ensure the chart is redrawn with new data.
+    // If a Chart.js instance already exists on this canvas, destroy it.
+    // This is crucial to prevent duplicate charts and ensure the chart is redrawn
+    // with new data every time the analysis is run.
     if (Chart.getChart(canvasId)) {
         Chart.getChart(canvasId).destroy();
     }
     
-    // Create a new Chart.js bar chart.
+    // Create a new Chart.js bar chart with specified data and options.
     new Chart(ctx, {
-        type: 'bar', // Specifies the chart type as a bar chart.
+        type: 'bar', // Defines the chart type as a bar chart.
         data: {
-            labels: labels, // Labels for the x-axis (e.g., column names, unique values).
+            labels: labels, // Labels for the X-axis (e.g., column names, unique values).
             datasets: [{
-                label: title, // Label for the dataset, often the chart title.
-                data: data,   // The actual data values to be plotted.
+                label: title, // Label for the dataset, usually serving as the chart title.
+                data: data,   // The actual data values to be plotted on the Y-axis.
                 backgroundColor: backgroundColor || 'rgba(75, 192, 192, 0.6)', // Bar fill color, with a default if not provided.
-                borderColor: backgroundColor ? backgroundColor.replace('0.6', '1') : 'rgba(75, 192, 192, 1)', // Bar border color, a darker shade of fill color.
+                borderColor: backgroundColor ? backgroundColor.replace('0.6', '1') : 'rgba(75, 192, 192, 1)', // Bar border color, a darker shade of the fill.
                 borderWidth: 1 // Width of the bar border.
             }]
         },
         options: {
-            responsive: true,     // Makes the chart responsive to container size changes.
-            maintainAspectRatio: false, // Allows the chart to change aspect ratio for better responsiveness.
+            responsive: true,     // Makes the chart resize automatically with its container.
+            maintainAspectRatio: false, // Allows the chart to change its aspect ratio for better responsiveness.
             scales: {
                 y: {
-                    beginAtZero: true // Ensures the y-axis starts at zero for accurate comparison.
+                    beginAtZero: true // Ensures the Y-axis starts at zero for accurate comparison.
                 }
             },
             plugins: {
                 legend: {
-                    display: false // Hides the legend as the title serves the purpose.
+                    display: false // Hides the legend as the title conveys the dataset's meaning.
                 },
                 title: {
                     display: true, // Displays the chart title.
@@ -45,65 +45,73 @@ function createBarChart(canvasId, labels, data, title, backgroundColor) {
     });
 }
 
-// Ensure the DOM is fully loaded before attempting to access and manipulate elements.
+// Ensures that the entire HTML document is fully loaded and parsed
+// before attempting to access or manipulate any DOM elements.
 document.addEventListener('DOMContentLoaded', () => {
-    // Get references to key DOM elements used for user interaction and displaying results.
-    const dataFileInput = document.getElementById('dataFileInput');
-    const fileNameSpan = document.getElementById('fileName');
-    const analyzeButton = document.getElementById('analyzeButton');
-    const resultsArea = document.getElementById('resultsArea');
-    const sensitiveAttrsInput = document.getElementById('sensitiveAttrsInput');
-    const outcomeColInput = document.getElementById('outcomeColInput');
-    const downloadReportButton = document.getElementById('downloadReportButton');
+    // --- Get References to Key DOM Elements ---
+    // These constants hold references to the HTML elements that the script will interact with.
+    const dataFileInput = document.getElementById('dataFileInput'); // File input for data upload
+    const fileNameSpan = document.getElementById('fileName');       // Span to display selected file name
+    const analyzeButton = document.getElementById('analyzeButton'); // Button to trigger data analysis
+    const resultsArea = document.getElementById('resultsArea');     // Div to display analysis results
+    const sensitiveAttrsInput = document.getElementById('sensitiveAttrsInput'); // Input for sensitive column names
+    const outcomeColInput = document.getElementById('outcomeColInput');         // Input for outcome column name
+    const downloadReportButton = document.getElementById('downloadReportButton'); // Button to download report
 
-    // Get reference to the upload area for drag and drop functionality.
+    // NEW REFERENCES for Disparate Impact Ratio (DIR) specific inputs
+    const favorableOutcomeInput = document.getElementById('favorableOutcomeInput'); // Input for favorable outcome value
+    const privilegedGroupInput = document.getElementById('privilegedGroupInput');   // Input for privileged group value
+
+    // Reference to the upload area for implementing drag-and-drop functionality.
     const uploadArea = document.querySelector('.upload-area');
 
-    // Variable to store the last successfully generated report data.
-    // This data is used when generating the downloadable HTML report.
+    // Variable to store the last successfully generated report data received from the backend.
+    // This data is used to dynamically generate the displayed report and the downloadable HTML report.
     let lastReportData = null;
 
-    // Event listener for when a file is selected via the input button.
+    // --- Event Listener for File Input Change ---
+    // Fired when a user selects a file using the "Choose File" button.
     dataFileInput.addEventListener('change', (event) => {
         if (event.target.files.length > 0) {
-            processFile(event.target.files[0]); // Process the selected file.
+            processFile(event.target.files[0]); // If a file is selected, process it.
         } else {
-            // Reset display if no file is chosen.
+            // If no file is selected (e.g., user cancels the dialog), reset display.
             fileNameSpan.textContent = 'No file chosen';
             downloadReportButton.style.display = 'none';
         }
     });
 
-    // --- Drag and Drop Event Listeners ---
-    // Prevent default browser behavior for dragover to allow dropping files.
+    // --- Drag and Drop Event Listeners for the Upload Area ---
+    // Prevents the default browser behavior (which would be to open the file)
+    // when a draggable item is dragged over the element. Allows for custom drop handling.
     uploadArea.addEventListener('dragover', (event) => {
         event.preventDefault(); 
-        uploadArea.classList.add('drag-over'); // Add a visual indicator for drag-over state.
+        uploadArea.classList.add('drag-over'); // Add a visual indicator (CSS class) when dragging over.
     });
 
-    // Remove drag-over indicator when the dragged item leaves the area.
+    // Removes the visual indicator when the dragged item leaves the area.
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.classList.remove('drag-over');
     });
 
-    // Handle the file drop event.
+    // Handles the file drop event.
     uploadArea.addEventListener('drop', (event) => {
-        event.preventDefault(); // Prevent default browser behavior (e.g., opening file).
-        uploadArea.classList.remove('drag-over'); // Remove drag-over indicator.
+        event.preventDefault(); // Prevent default browser behavior (e.g., opening file in new tab).
+        uploadArea.classList.remove('drag-over'); // Remove drag-over visual indicator.
 
         const files = event.dataTransfer.files; // Get the dropped files.
         if (files.length > 0) {
-            dataFileInput.files = files; // Assign the dropped file to the hidden input for consistency.
-            processFile(files[0]); // Process the first dropped file.
+            dataFileInput.files = files; // Assign the dropped file to the hidden input for consistent processing.
+            processFile(files[0]);       // Process the first dropped file.
         }
     });
     // --- End Drag and Drop Event Listeners ---
 
-    // Centralized function to handle file selection/drop.
+    // Centralized function to handle file selection or drop events.
     function processFile(file) {
         if (file) {
-            fileNameSpan.textContent = file.name; // Display the name of the selected file.
-            downloadReportButton.style.display = 'none'; // Hide download button until analysis is complete.
+            fileNameSpan.textContent = file.name; // Display the name of the chosen file to the user.
+            downloadReportButton.style.display = 'none'; // Hide the download button until analysis is complete.
             // Uncomment the line below if you want automatic analysis upon file selection/drop.
             // analyzeButton.click(); 
         } else {
@@ -112,52 +120,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listener for the "Analyze Data" button click.
+    // --- Event Listener for the "Analyze Data" Button Click ---
+    // This is the main trigger for sending data to the backend for analysis.
     analyzeButton.addEventListener('click', async () => {
-        const file = dataFileInput.files[0]; // Get the selected file.
+        const file = dataFileInput.files[0]; // Get the currently selected file.
 
-        // Validate if a file has been selected.
+        // Basic validation: Check if a file has been selected.
         if (!file) {
             resultsArea.innerHTML = '<p style="color: red;">Please select a file first!</p>';
             downloadReportButton.style.display = 'none';
-            return;
+            return; // Stop execution if no file is selected.
         }
 
-        // Provide immediate feedback to the user.
+        // Provide immediate feedback to the user while processing.
         resultsArea.innerHTML = '<p>Uploading and analyzing data... Please wait.</p>';
-        downloadReportButton.style.display = 'none'; // Hide download button during analysis.
+        downloadReportButton.style.display = 'none'; // Ensure download button is hidden during analysis.
         console.log('Sending file:', file.name);
 
         // Prepare the form data for the API request.
+        // FormData is used to send file uploads and other form fields via POST.
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', file); // Append the selected file.
 
-        // Parse sensitive attributes and outcome column from input fields.
+        // Get and process input values for sensitive attributes and outcome column.
         const sensitiveAttrs = sensitiveAttrsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
         const outcomeCol = outcomeColInput.value.trim();
 
-        // Append sensitive attributes (as a JSON string) and outcome column to form data if provided.
+        // Append sensitive attributes (as a JSON string) to form data if provided.
         if (sensitiveAttrs.length > 0) {
             formData.append('sensitive_attributes', JSON.stringify(sensitiveAttrs));
         }
+        // Append outcome column to form data if provided.
         if (outcomeCol) {
             formData.append('outcome_column', outcomeCol);
         }
+
+        // NEW: Append Favorable Outcome Value and Privileged Group Value.
+        // These are crucial for Disparate Impact Ratio (DIR) calculations.
+        const favorableOutcomeVal = favorableOutcomeInput.value.trim();
+        const privilegedGroupVal = privilegedGroupInput.value.trim();
+
+        if (favorableOutcomeVal) {
+            formData.append('favorable_outcome_value', favorableOutcomeVal);
+        }
+        if (privilegedGroupVal) {
+            formData.append('privileged_group_value', privilegedGroupVal);
+        }
         
         try {
-            // Send the data to the backend API.
+            // Send the data to the backend API using the fetch API.
             const response = await fetch('http://127.0.0.1:8000/analyze-data/', {
-                method: 'POST',
-                body: formData,
+                method: 'POST', // Use POST method for file uploads.
+                body: formData, // The prepared FormData object.
             });
 
-            // Handle successful API response.
+            // Handle successful API response (HTTP status 2xx).
             if (response.ok) {
-                const data = await response.json();
+                const data = await response.json(); // Parse the JSON response body.
                 lastReportData = data; // Store the received report data for future download.
-                console.log('Backend response (full report):', data);
+                console.log('Backend response (full report):', data); // Log the full response for debugging.
 
-                // Build the HTML content to display the analysis results.
+                // --- Build the HTML content to display the analysis results ---
                 let htmlContent = `
                     <p style="color: green;"><strong>Success!</strong> ${data.message}</p>
                     <h3>File Details:</h3>
@@ -169,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
 
                 // --- Summary of Alerts Section ---
+                // Displays high-level critical alerts found during data quality and bias checks.
                 if (data.summary_alerts && data.summary_alerts.length > 0) {
                     htmlContent += `<h3>Summary of Alerts:</h3><ul class="alerts-list">`;
                     data.summary_alerts.forEach(alert => {
@@ -176,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Assign CSS classes based on alert type for visual distinction.
                         if (alert.type.includes('Missing')) alertClass = 'warning-flag';
                         else if (alert.type.includes('Duplicate')) alertClass = 'info-flag';
-                        else if (alert.type.includes('Bias')) alertClass = 'critical-flag';
+                        else if (alert.type.includes('Bias')) alertClass = 'critical-flag'; // Catches Disparity and Disparate Impact alerts
+                        else if (alert.type.includes('Info')) alertClass = 'info-flag'; // General information alerts
 
                         htmlContent += `<li class="${alertClass}"><strong>${alert.type}:</strong> ${alert.message}</li>`;
                     });
@@ -189,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // --- Data Quality Checks Display ---
                 htmlContent += `<h3>Data Quality Checks:</h3>`;
 
-                // Missing Values
+                // Missing Values: Displays count and percentage of missing values per column.
                 if (Object.keys(data.quality_checks.missing_values).length > 0) {
                     htmlContent += `<h4>Missing Values:</h4><ul>`;
                     for (const col in data.quality_checks.missing_values) {
@@ -197,35 +222,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         htmlContent += `<li><strong>${col}:</strong> ${mv.count} missing (${mv.percentage}%)</li>`;
                     }
                     htmlContent += `</ul>`;
-                    // Placeholder for Missing Values Chart.
+                    // Placeholder for Missing Values Chart. Chart will be rendered dynamically after HTML is set.
                     htmlContent += `<div class="chart-container"><canvas id="missingValuesChart"></canvas></div>`;
                 } else {
                     htmlContent += `<p>No missing values detected.</p>`;
                 }
 
-                // Duplicate Rows
+                // Duplicate Rows: Displays the total count of exact duplicate rows.
                 htmlContent += `<h4>Duplicate Rows:</h4>`;
                 if (data.quality_checks.duplicate_rows > 0) {
-                    htmlContent += `<p><strong>${data.quality_checks.duplicate_rows}</strong> duplicate rows detected.</p>`;
+                    htmlContent += `<p><strong>${data.quality_checks.duplicate_rows}</strong> exact duplicate rows detected.</p>`;
                 } else {
                     htmlContent += `<p>No duplicate rows detected.</p>`;
                 }
 
-                // Column Data Types
+                // Column Data Types: Lists the inferred data type for each column.
                 htmlContent += `<h4>Column Data Types:</h4><ul>`;
                 for (const col in data.quality_checks.column_data_types) {
                     htmlContent += `<li><strong>${col}:</strong> ${data.quality_checks.column_data_types[col]}</li>`;
                 }
                 htmlContent += `</ul>`;
 
-                // Column Statistics (for numeric columns)
+                // Column Statistics (for numeric columns): Displays descriptive statistics like mean, std dev, min, max.
                 if (Object.keys(data.quality_checks.column_statistics).length > 0) {
                     htmlContent += `<h4>Numeric Column Statistics:</h4>`;
                     for (const col in data.quality_checks.column_statistics) {
                         const stats = data.quality_checks.column_statistics[col];
                         htmlContent += `<h5>${col}:</h5><ul>`;
                         for (const stat in stats) {
-                            // Format numeric stats to two decimal places.
+                            // Format numeric statistics to two decimal places for readability.
                             htmlContent += `<li><strong>${stat}:</strong> ${stats[stat].toFixed(2)}</li>`;
                         }
                         htmlContent += `</ul>`;
@@ -234,7 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     htmlContent += `<p>No numeric columns for statistics.</p>`;
                 }
 
-                // Unique Values Preview (for low cardinality columns, with charts)
+                // Unique Values Preview (for low cardinality columns, with charts):
+                // Shows the top 10 most frequent unique values and their counts for categorical or low-cardinality columns.
                 if (Object.keys(data.quality_checks.unique_values_preview).length > 0) {
                     htmlContent += `<h4>Unique Values Preview (Low Cardinality Columns):</h4>`;
                     for (const col in data.quality_checks.unique_values_preview) {
@@ -244,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             htmlContent += `<li><strong>"${val}"</strong>: ${unique_vals[val]} occurrences</li>`;
                         }
                         htmlContent += `</ul>`;
-                        // Create a unique canvas ID for each chart.
+                        // Create a unique canvas ID for each chart to avoid conflicts.
                         const canvasId = `uniqueValuesChart_${col.replace(/[^a-zA-Z0-9]/g, '_')}`;
                         htmlContent += `<div class="chart-container"><canvas id="${canvasId}"></canvas></div>`;
                     }
@@ -253,24 +279,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // --- Bias Flags Display ---
+                // This section details potential biases detected based on sensitive attributes and outcome.
                 htmlContent += `<h3>Bias Flags:</h3>`;
 
-                // Check if any actual bias flags (excluding internal `_` prefixed keys) exist.
-                const actualBiasFlagsExist = Object.keys(data.bias_flags).filter(key => !key.startsWith('_')).length > 0;
+                // Determine if there are any bias flags to display (excluding internal '_' prefixed keys).
+                const hasBiasFlags = Object.keys(data.bias_flags).some(key => !key.startsWith('_') && data.bias_flags[key].length > 0) || 
+                                     (data.bias_flags._info && data.bias_flags._info.length > 0) ||
+                                     (data.bias_flags._error && data.bias_flags._error.length > 0);
 
-                if (actualBiasFlagsExist) {
-                    for (const attr in data.bias_flags) {
-                        if (attr.startsWith('_')) continue; // Skip internal keys.
-                        const flags = data.bias_flags[attr];
-                        htmlContent += `<h4>Potential Bias in "${attr}":</h4><ul>`;
-                        flags.forEach(flag => {
-                            let flagClass = '';
-                            // Assign CSS classes based on flag type.
-                            if (flag.type === 'Imbalance') flagClass = 'warning-flag';
-                            else if (flag.type === 'Disparity') flagClass = 'critical-flag';
-                            htmlContent += `<li class="${flagClass}"><strong>${flag.type}:</strong> ${flag.message}</li>`;
+                if (hasBiasFlags) {
+                    // Display general information or error messages related to bias flagging first.
+                    if (data.bias_flags && data.bias_flags._info && data.bias_flags._info.length > 0) {
+                        htmlContent += `<h4>General Bias-Related Information:</h4><ul>`;
+                        data.bias_flags._info.forEach(info => {
+                            htmlContent += `<li class="info-flag"><strong>${info.type}:</strong> ${info.message}</li>`;
                         });
                         htmlContent += `</ul>`;
+                    }
+                    if (data.bias_flags && data.bias_flags._error && data.bias_flags._error.length > 0) {
+                         htmlContent += `<h4>Bias Input Errors:</h4><ul class="alerts-list">`;
+                         data.bias_flags._error.forEach(err => {
+                             htmlContent += `<li class="critical-flag"><strong>${err.type}:</strong> ${err.message}</li>`;
+                         });
+                         htmlContent += `</ul>`;
+                    }
+
+                    // Iterate through each sensitive attribute for specific bias flags.
+                    for (const attr in data.bias_flags) {
+                        if (attr.startsWith('_')) continue; // Skip internal backend keys.
+
+                        const flags = data.bias_flags[attr];
+                        if (flags.length === 0) continue; // Skip if no specific flags for this attribute.
+
+                        htmlContent += `<h4>Potential Bias in "${attr}":</h4><ul>`;
+                        
+                        // NEW FIX FOR "DIR Summary: undefined" issue and better rendering
+                        let dirSummaryDisplayedForAttr = false; 
+
+                        flags.forEach(flag => {
+                            let flagClass = '';
+                            // Assign CSS classes based on flag type for visual emphasis.
+                            if (flag.type === 'Imbalance') flagClass = 'warning-flag';
+                            else if (flag.type === 'Disparity') flagClass = 'critical-flag';
+                            else if (flag.type === 'Bias Disparate Impact') flagClass = 'critical-flag';
+                            else if (flag.type.includes('Info')) flagClass = 'info-flag';
+                            else if (flag.type.includes('Warning')) flagClass = 'warning-flag'; // For backend-generated DIR warnings
+
+                            // Render the main flag message.
+                            htmlContent += `<li class="${flagClass}"><strong>${flag.type}:</strong> ${flag.message}</li>`;
+
+                            // Handle Disparate Impact Ratio (DIR) summary details.
+                            // This part displays selection rates and the calculated ratio.
+                            // Ensure it's only rendered once per attribute and has details.
+                            if (flag.type === 'DIR Summary' && flag.details && !dirSummaryDisplayedForAttr) {
+                                htmlContent += `<ul>`;
+                                htmlContent += `<li><strong>Privileged Group:</strong> ${flag.details.privileged_group}</li>`;
+                                htmlContent += `<li><strong>Selection Rates:</strong>`;
+                                for (const group in flag.details.selection_rates) {
+                                    htmlContent += `<div>- '${group}': ${flag.details.selection_rates[group]}%</div>`;
+                                }
+                                htmlContent += `</li>`;
+                                // Display individual DIR comparisons (e.g., DIR_vs_Female).
+                                for (const key in flag.details) {
+                                    if (key.startsWith("DIR_vs_")) {
+                                        const groupName = key.replace("DIR_vs_", "");
+                                        const dirValue = flag.details[key];
+                                        // Apply critical-flag class if DIR is below 0.8 threshold.
+                                        let dirComparisonClass = dirValue < 0.8 ? 'critical-flag' : ''; 
+                                        htmlContent += `<li class="${dirComparisonClass}"><strong>Disparate Impact Ratio (for '${groupName}' vs '${flag.details.privileged_group}'):</strong> ${dirValue.toFixed(2)}</li>`;
+                                    }
+                                }
+                                htmlContent += `</ul>`;
+                                dirSummaryDisplayedForAttr = true; // Mark as rendered to prevent re-rendering for this attribute.
+                            }
+                        });
+                        htmlContent += `</ul>`;
+
                         // If distribution data is available for this sensitive attribute, add a chart placeholder.
                         if (data.quality_checks.unique_values_preview && data.quality_checks.unique_values_preview[attr]) {
                             const biasCanvasId = `biasChart_${attr.replace(/[^a-zA-Z0-9]/g, '_')}`;
@@ -280,23 +364,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     htmlContent += `<p>No specific bias flags detected based on the provided sensitive attributes and outcome column.</p>`;
                 }
+                // General note on the complexity of bias detection.
                 htmlContent += `<p style="font-size: 0.9em; color: #666;"><em>Note: Bias detection is complex. These are flags for further investigation, not definitive proof of bias.</em></p>`;
 
                 // Set the innerHTML of the results area. This must happen BEFORE drawing charts
-                // so that the canvas elements exist in the DOM.
+                // so that the canvas elements exist in the DOM for Chart.js to find them.
                 resultsArea.innerHTML = htmlContent;
 
                 // --- Call Chart Rendering Functions AFTER HTML content is set ---
                 const currentData = lastReportData; // Use the stored data for charts.
 
-                // 1. Render Missing Values Chart
+                // 1. Render Missing Values Chart: Displays a bar chart of missing value percentages per column.
                 if (Object.keys(currentData.quality_checks.missing_values).length > 0) {
                     const labels = Object.keys(currentData.quality_checks.missing_values);
                     const percentages = labels.map(col => currentData.quality_checks.missing_values[col].percentage);
                     createBarChart('missingValuesChart', labels, percentages, 'Percentage of Missing Values', 'rgba(255, 159, 64, 0.6)');
                 }
 
-                // 2. Render Unique Values Preview Charts
+                // 2. Render Unique Values Preview Charts: Displays bar charts for the distribution of unique values
+                //    in low-cardinality columns.
                 if (Object.keys(currentData.quality_checks.unique_values_preview).length > 0) {
                     for (const col in currentData.quality_checks.unique_values_preview) {
                         const unique_vals = currentData.quality_checks.unique_values_preview[col];
@@ -307,7 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // 3. Render Bias Attribute Distribution Charts (reusing unique_values_preview data for sensitive attributes)
+                // 3. Render Bias Attribute Distribution Charts: Displays bar charts for the distribution of sensitive attributes.
+                //    This reuses the unique_values_preview data for sensitive columns.
                 if (Object.keys(currentData.bias_flags).length > 0) {
                     for (const attr in currentData.bias_flags) {
                         if (attr.startsWith('_')) continue; // Skip internal keys.
@@ -321,26 +408,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 }
-                downloadReportButton.style.display = 'block'; // Show the download button.
+                downloadReportButton.style.display = 'block'; // Show the download button after successful analysis.
 
             } else {
-                // Handle API errors.
-                const errorData = await response.json();
+                // Handle API errors where response.ok is false (e.g., HTTP 4xx or 5xx from backend).
+                const errorData = await response.json(); // Attempt to parse error details from JSON response.
                 resultsArea.innerHTML = `<p style="color: red;">Error: ${errorData.detail || response.statusText}</p>`;
-                console.error('Backend error:', errorData);
-                downloadReportButton.style.display = 'none';
+                console.error('Backend error:', errorData); // Log the error for debugging.
+                downloadReportButton.style.display = 'none'; // Hide download button on error.
             }
         } catch (error) {
-            // Handle network or other fetch-related errors.
-            resultsArea.innerHTML = `<p style="color: red;">Network error or server unavailable: ${error.message}</p>`;
-            console.error('Fetch error:', error);
-            downloadReportButton.style.display = 'none';
+            // Catch any network errors (e.g., server unreachable) or unexpected fetch-related errors.
+            resultsArea.innerHTML = `<p style="color: red;">Network error or server unavailable: ${error.message}. Please check console for details.</p>`;
+            console.error('Fetch error:', error); // Log the detailed fetch error.
+            downloadReportButton.style.display = 'none'; // Hide download button on error.
         }
     });
 
     // --- Event listener for Download Report Button ---
+    // Allows the user to download the currently displayed analysis report as an HTML file.
     downloadReportButton.addEventListener('click', () => {
-        // Ensure analysis has been run and data is available.
+        // Ensure analysis has been run and report data is available before attempting download.
         if (!lastReportData) {
             alert("Please run an analysis first to generate a report.");
             return;
@@ -348,12 +436,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Get the current HTML content displayed in the results area.
         const reportContent = resultsArea.innerHTML; 
-        // Generate a dynamic filename for the downloaded report.
+        // Generate a dynamic filename for the downloaded report (e.g., data_sanity_report_2025-07-29.html).
         const filename = `data_sanity_report_${new Date().toISOString().slice(0, 10)}.html`; 
 
-        // Construct the full HTML for the downloadable report.
-        // Important: Charts in this downloaded HTML will be static as they depend on the
-        // JavaScript execution environment of the original page.
+        // Construct the full HTML document for the downloadable report.
+        // It includes basic inline styles for self-containment and a note about charts being static.
         const fullHtml = `
             <!DOCTYPE html>
             <html lang="en">
@@ -363,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <title>Data Sanity Report</title>
                 <style>
                     /* Basic inline styles for the downloaded report for self-containment.
-                       These should largely mirror key styles from style.css. */
+                        These should largely mirror key styles from style.css. */
                     body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 20px; }
                     .container { max-width: 900px; margin: auto; padding: 20px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
                     h1, h2, h3, h4, h5 { color: #2c3e50; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
@@ -377,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .info-flag { color: #007bff; font-weight: bold; }
                     .chart-note { font-size: 0.8em; color: #777; text-align: center; margin-top: 5px;}
 
-                    /* Hide interactive elements in the downloaded report */
+                    /* Hide interactive elements in the downloaded report to make it look like a static document */
                     .download-button, .analyze-button, .upload-area, .input-group { display: none !important; }
                 </style>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -392,18 +479,18 @@ document.addEventListener('DOMContentLoaded', () => {
             </html>
         `;
 
-        // Create a Blob containing the HTML content.
+        // Create a Blob (Binary Large Object) containing the constructed HTML content.
         const blob = new Blob([fullHtml], { type: 'text/html' });
-        // Create a URL for the Blob.
+        // Create a URL representing the Blob data.
         const url = URL.createObjectURL(blob);
 
-        // Create a temporary anchor element to trigger the download.
+        // Create a temporary anchor (<a>) element to trigger the download.
         const a = document.createElement('a');
-        a.href = url;
-        a.download = filename; // Set the download filename.
-        document.body.appendChild(a); // Append to body (necessary for Firefox).
-        a.click(); // Programmatically click the anchor to start download.
-        document.body.removeChild(a); // Clean up the temporary anchor.
-        URL.revokeObjectURL(url); // Release the object URL for garbage collection.
+        a.href = url;               // Set the href to the Blob URL.
+        a.download = filename;      // Set the desired download filename.
+        document.body.appendChild(a); // Append to the body (necessary for some browsers like Firefox).
+        a.click();                  // Programmatically click the anchor to start the download.
+        document.body.removeChild(a); // Clean up the temporary anchor element.
+        URL.revokeObjectURL(url);   // Release the object URL to allow garbage collection.
     });
 });

@@ -1,0 +1,44 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore Python cache directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.dm.json
+
+# Ignore macOS system files
+.DS_Store
+.Trash-*
+
+# Ignore Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Ignore environment variable files (should not be copied into image)
+.env
+.flaskenv
+*.env.local
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+tmp/
+
+# Ignore test data or large local files not needed in the image
+# For example, if you have a 'test_data/' directory or specific large CSVs
+# test_data/
+# my_local_big_file.csv
+
+# Ignore Git-related files/directories, as they are not needed in the final image
+.git/
+.gitignore

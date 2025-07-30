@@ -1,6 +1,5 @@
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim-buster
-# This line was changed from Python 3.9/3.10 to 3.11 for compatibility with dependencies like numpy.
 
 # Set the working directory in the container
 WORKDIR /app
