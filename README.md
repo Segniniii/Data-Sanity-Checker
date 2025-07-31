@@ -28,10 +28,12 @@ A comprehensive, open-source web-based tool designed to help AI startups and dat
 ---
 
 ## 📸 Screenshots
-![Data Upload and Analysis Input Interface](https://github.com/user-attachments/assets/9c69f0e6-073e-440f-8f50-f43d8217a7b3)  
+<img width="666" height="697" alt="image" src="https://github.com/user-attachments/assets/8fe0b120-36ba-4c82-884c-21d9f45e889d" />
+
 *Figure 1: Data Upload and Analysis Input Interface*
 
-![Example of a Detailed Analysis Report](https://github.com/user-attachments/assets/8efdee7b-3f1d-489c-85ed-80f1f86122f5)  
+<img width="656" height="369" alt="image" src="https://github.com/user-attachments/assets/160777a8-2b36-4dbe-aede-8cc3efc6be91" />
+
 *Figure 2: Example of a Detailed Analysis Report including Bias Flags and Data Quality Checks*
 
 ---
